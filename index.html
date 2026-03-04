@@ -3,1439 +3,529 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Assignment Planner — 10 Weeks</title>
+<title>Assignment Planner — Revised (Forensics Paused)</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap');
-
   :root {
-    --bg: #0a0b0f;
-    --surface: #111318;
-    --card: #16181f;
-    --border: #1f2230;
-    --border-bright: #2a2d3e;
-    --c-forensics: #e8624a;
-    --c-ducky: #e8b84a;
-    --c-ds: #4ab8e8;
-    --c-break: #4ae88a;
-    --c-rest: #7b5ea7;
-    --text: #dde0ed;
-    --muted: #565970;
-    --faint: #1c1f2e;
+    --bg:#0a0b0f; --surface:#111318; --card:#16181f; --border:#1f2230;
+    --border-bright:#2a2d3e; --c-ducky:#e8b84a; --c-ds:#4ab8e8;
+    --c-forensics:#64748b; --c-break:#4ae88a; --c-rest:#7b5ea7;
+    --text:#dde0ed; --muted:#565970; --faint:#1c1f2e;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'IBM Plex Mono', monospace;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-  }
-
-  /* ── HEADER ── */
-  .header {
-    padding: 2.5rem 2rem 2rem;
-    border-bottom: 1px solid var(--border);
-    background: linear-gradient(180deg, #0e0f1a 0%, var(--bg) 100%);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .header::before {
-    content: '10 WEEKS';
-    position: absolute;
-    right: -0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(6rem, 15vw, 11rem);
-    color: rgba(255,255,255,0.025);
-    letter-spacing: 0.05em;
-    pointer-events: none;
-    white-space: nowrap;
-  }
-
-  .header h1 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.2rem, 6vw, 4rem);
-    letter-spacing: 0.06em;
-    line-height: 1;
-    margin-bottom: 0.4rem;
-    color: #fff;
-  }
-
-  .header-sub {
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 1.5rem;
-  }
-
-  .deadline-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-
-  .dl-badge {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    border: 1px solid;
-    border-radius: 4px;
-    padding: 0.3rem 0.75rem;
-    font-size: 0.68rem;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  .dl-badge.f { border-color: rgba(232,98,74,0.4); color: var(--c-forensics); background: rgba(232,98,74,0.07); }
-  .dl-badge.d { border-color: rgba(232,184,74,0.4); color: var(--c-ducky); background: rgba(232,184,74,0.07); }
-  .dl-badge.s { border-color: rgba(74,184,232,0.4); color: var(--c-ds); background: rgba(74,184,232,0.07); }
-
-  .dl-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-  .dl-dot.f { background: var(--c-forensics); }
-  .dl-dot.d { background: var(--c-ducky); }
-  .dl-dot.s { background: var(--c-ds); }
-
-  /* ── LAYOUT ── */
-  .container { max-width: 980px; margin: 0 auto; padding: 2rem 1.5rem 5rem; }
-
-  /* ── WEEK BLOCK ── */
-  .week-block { margin-bottom: 2.5rem; }
-
-  .week-header {
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .week-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2rem;
-    letter-spacing: 0.05em;
-    color: var(--border-bright);
-    line-height: 1;
-  }
-
-  .week-title {
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .week-dates {
-    font-size: 0.65rem;
-    color: var(--muted);
-    margin-left: auto;
-    opacity: 0.6;
-  }
-
-  /* ── DAY ROW ── */
-  .day-row {
-    display: grid;
-    grid-template-columns: 110px 1fr;
-    gap: 0;
-    margin-bottom: 2px;
-    border-radius: 6px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-  }
-
-  .day-row.rest { opacity: 0.7; }
-  .day-row.deadline-row-item { border-color: rgba(232,98,74,0.3); }
-  .day-row.deadline-ducky { border-color: rgba(232,184,74,0.3); }
-  .day-row.deadline-ds { border-color: rgba(74,184,232,0.3); }
-
-  .day-label {
-    background: var(--surface);
-    padding: 0.75rem;
-    border-right: 1px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    gap: 0.2rem;
-  }
-
-  .day-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1rem;
-    letter-spacing: 0.05em;
-    color: var(--text);
-    line-height: 1;
-  }
-
-  .day-date { font-size: 0.62rem; color: var(--muted); }
-  .day-note { font-size: 0.58rem; color: var(--muted); margin-top: 0.2rem; line-height: 1.3; opacity: 0.8; }
-
-  .day-content {
-    background: var(--card);
-    padding: 0.6rem 0.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-  }
-
-  /* REST DAY */
-  .rest-banner {
-    font-size: 0.75rem;
-    color: rgba(123,94,167,0.9);
-    padding: 0.5rem 0.75rem;
-    background: rgba(123,94,167,0.06);
-    border-left: 2px solid rgba(123,94,167,0.3);
-    border-radius: 3px;
-  }
-
-  /* SESSION */
-  .session-row {
-    display: flex;
-    gap: 0.6rem;
-    align-items: flex-start;
-  }
-
-  .session-time {
-    font-size: 0.6rem;
-    color: var(--muted);
-    min-width: 80px;
-    padding-top: 0.15rem;
-    line-height: 1.4;
-    flex-shrink: 0;
-  }
-
-  .session-body { flex: 1; }
-
-  .tag {
-    display: inline-block;
-    font-size: 0.58rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 0.1rem 0.45rem;
-    border-radius: 3px;
-    margin-bottom: 0.2rem;
-    font-weight: 600;
-  }
-
-  .tag.f { background: rgba(232,98,74,0.15); color: var(--c-forensics); }
-  .tag.d { background: rgba(232,184,74,0.15); color: var(--c-ducky); }
-  .tag.s { background: rgba(74,184,232,0.15); color: var(--c-ds); }
-  .tag.b { background: rgba(74,232,138,0.1); color: var(--c-break); }
-
-  .session-desc { font-size: 0.75rem; color: var(--text); line-height: 1.5; }
-  .session-note { font-size: 0.67rem; color: var(--muted); margin-top: 0.15rem; line-height: 1.4; }
-
-  /* BREAK STRIPE */
-  .break-stripe {
-    font-size: 0.65rem;
-    color: rgba(74,232,138,0.6);
-    padding: 0.25rem 0.5rem;
-    background: rgba(74,232,138,0.04);
-    border-left: 2px solid rgba(74,232,138,0.2);
-    border-radius: 2px;
-  }
-
-  /* DEADLINE BANNER */
-  .deadline-banner {
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.4rem 0.75rem;
-    border-radius: 3px;
-    letter-spacing: 0.05em;
-    margin-bottom: 0.25rem;
-  }
-
-  .deadline-banner.f { background: rgba(232,98,74,0.12); color: var(--c-forensics); border-left: 3px solid var(--c-forensics); }
-  .deadline-banner.d { background: rgba(232,184,74,0.12); color: var(--c-ducky); border-left: 3px solid var(--c-ducky); }
-  .deadline-banner.s { background: rgba(74,184,232,0.12); color: var(--c-ds); border-left: 3px solid var(--c-ds); }
-
-  /* LEGEND */
-  .legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding: 1rem 1.25rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.68rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-
-  .legend-sq {
-    width: 10px; height: 10px;
-    border-radius: 2px; flex-shrink: 0;
-  }
-
-  /* COMMITMENTS BOX */
-  .commitments {
-    padding: 0.875rem 1.25rem;
-    background: rgba(74,184,232,0.04);
-    border: 1px solid rgba(74,184,232,0.12);
-    border-radius: 6px;
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-bottom: 2rem;
-    line-height: 1.8;
-  }
-  .commitments strong { color: rgba(74,184,232,0.8); font-weight: 600; }
-
-  /* STEP BY STEP */
-  .steps-section { margin-top: 3rem; border-top: 1px solid var(--border); padding-top: 2rem; }
-
-  .steps-header {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
-    letter-spacing: 0.06em;
-    color: #fff;
-    margin-bottom: 1.5rem;
-  }
-
-  .steps-card {
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 1rem;
-  }
-
-  .steps-card-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.25rem;
-    cursor: pointer;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    user-select: none;
-  }
-
-  .steps-card-header:hover { background: var(--card); }
-
-  .steps-card-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem;
-    line-height: 1;
-    letter-spacing: 0.05em;
-    min-width: 30px;
-  }
-
-  .steps-card-title {
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    flex: 1;
-  }
-
-  .steps-card-meta {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .meta-pill {
-    font-size: 0.62rem;
-    padding: 0.15rem 0.5rem;
-    border-radius: 3px;
-    background: var(--faint);
-    color: var(--muted);
-    letter-spacing: 0.05em;
-  }
-
-  .steps-toggle { color: var(--muted); font-size: 0.8rem; transition: transform 0.2s; }
-  .steps-toggle.open { transform: rotate(90deg); }
-
-  .steps-body { padding: 1.25rem; display: none; background: var(--card); }
-  .steps-body.open { display: block; }
-
-  .step-item {
-    display: flex;
-    gap: 0.875rem;
-    margin-bottom: 0.875rem;
-    align-items: flex-start;
-  }
-
-  .step-n {
-    font-size: 0.62rem;
-    font-weight: 600;
-    width: 20px; height: 20px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-    margin-top: 0.05rem;
-  }
-
-  .step-n.f { background: rgba(232,98,74,0.15); color: var(--c-forensics); }
-  .step-n.d { background: rgba(232,184,74,0.15); color: var(--c-ducky); }
-  .step-n.s { background: rgba(74,184,232,0.15); color: var(--c-ds); }
-
-  .step-action { font-size: 0.8rem; color: var(--text); font-weight: 500; }
-  .step-detail { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; line-height: 1.5; }
-
-  .tip {
-    background: rgba(74,184,232,0.06);
-    border: 1px solid rgba(74,184,232,0.15);
-    border-radius: 5px;
-    padding: 0.75rem 1rem;
-    font-size: 0.72rem;
-    color: rgba(74,184,232,0.8);
-    margin-top: 0.75rem;
-    line-height: 1.6;
-  }
-
-  @media (max-width: 600px) {
-    .day-row { grid-template-columns: 80px 1fr; }
-    .session-time { min-width: 60px; }
-    .header::before { display: none; }
-  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'IBM Plex Mono',monospace;background:var(--bg);color:var(--text)}
+  .header{padding:2.5rem 2rem 2rem;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#0e0f1a 0%,var(--bg) 100%);position:relative;overflow:hidden}
+  .header::before{content:'REVISED';position:absolute;right:-1rem;top:50%;transform:translateY(-50%);font-family:'Bebas Neue',sans-serif;font-size:clamp(5rem,14vw,10rem);color:rgba(255,255,255,0.025);pointer-events:none;white-space:nowrap}
+  .header h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:.06em;line-height:1;margin-bottom:.4rem;color:#fff}
+  .header-sub{font-size:.7rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:1.5rem}
+  .deadline-row{display:flex;flex-wrap:wrap;gap:.75rem}
+  .dl-badge{display:flex;align-items:center;gap:.5rem;border:1px solid;border-radius:4px;padding:.3rem .75rem;font-size:.68rem;letter-spacing:.05em;text-transform:uppercase}
+  .dl-badge.paused{border-color:rgba(100,116,139,.4);color:var(--c-forensics);background:rgba(100,116,139,.07)}
+  .dl-badge.d{border-color:rgba(232,184,74,.4);color:var(--c-ducky);background:rgba(232,184,74,.07)}
+  .dl-badge.s{border-color:rgba(74,184,232,.4);color:var(--c-ds);background:rgba(74,184,232,.07)}
+  .dl-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+  .alert-bar{margin:1.25rem 2rem;border:1px solid rgba(100,116,139,.3);border-radius:8px;background:rgba(100,116,139,.06);padding:1rem 1.25rem;font-size:.72rem;color:#94a3b8;line-height:1.7}
+  .alert-bar strong{color:#cbd5e1}
+  .container{max-width:980px;margin:0 auto;padding:2rem 1.5rem 5rem}
+  .commitments{padding:.875rem 1.25rem;background:rgba(74,184,232,.04);border:1px solid rgba(74,184,232,.12);border-radius:6px;font-size:.7rem;color:var(--muted);margin-bottom:2rem;line-height:1.8}
+  .commitments strong{color:rgba(74,184,232,.8)}
+  .legend{display:flex;flex-wrap:wrap;gap:1rem;margin-bottom:2rem;padding:1rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:8px}
+  .legend-item{display:flex;align-items:center;gap:.4rem;font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  .legend-sq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+  .week-block{margin-bottom:2.5rem}
+  .week-header{display:flex;align-items:baseline;gap:1rem;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--border)}
+  .week-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.05em;color:var(--border-bright);line-height:1}
+  .week-title{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .week-dates{font-size:.65rem;color:var(--muted);margin-left:auto;opacity:.6}
+  .day-row{display:grid;grid-template-columns:110px 1fr;gap:0;margin-bottom:2px;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+  .day-row.rest{opacity:.7}
+  .day-label{background:var(--surface);padding:.75rem;border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:flex-start;gap:.2rem}
+  .day-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.05em;color:var(--text);line-height:1}
+  .day-date{font-size:.62rem;color:var(--muted)}
+  .day-note{font-size:.58rem;color:var(--muted);margin-top:.2rem;line-height:1.3;opacity:.8}
+  .day-content{background:var(--card);padding:.6rem .75rem;display:flex;flex-direction:column;gap:.35rem}
+  .rest-banner{font-size:.75rem;color:rgba(123,94,167,.9);padding:.5rem .75rem;background:rgba(123,94,167,.06);border-left:2px solid rgba(123,94,167,.3);border-radius:3px}
+  .session-row{display:flex;gap:.6rem;align-items:flex-start}
+  .session-time{font-size:.6rem;color:var(--muted);min-width:80px;padding-top:.15rem;line-height:1.4;flex-shrink:0}
+  .session-body{flex:1}
+  .tag{display:inline-block;font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-bottom:.2rem;font-weight:600}
+  .tag.d{background:rgba(232,184,74,.15);color:var(--c-ducky)}
+  .tag.s{background:rgba(74,184,232,.15);color:var(--c-ds)}
+  .tag.b{background:rgba(74,232,138,.1);color:var(--c-break)}
+  .session-desc{font-size:.75rem;color:var(--text);line-height:1.5}
+  .session-note{font-size:.67rem;color:var(--muted);margin-top:.15rem;line-height:1.4}
+  .break-stripe{font-size:.65rem;color:rgba(74,232,138,.6);padding:.25rem .5rem;background:rgba(74,232,138,.04);border-left:2px solid rgba(74,232,138,.2);border-radius:2px}
+  .deadline-banner{font-size:.7rem;font-weight:600;padding:.4rem .75rem;border-radius:3px;letter-spacing:.05em;margin-bottom:.25rem}
+  .deadline-banner.d{background:rgba(232,184,74,.12);color:var(--c-ducky);border-left:3px solid var(--c-ducky)}
+  .deadline-banner.s{background:rgba(74,184,232,.12);color:var(--c-ds);border-left:3px solid var(--c-ds)}
+  .steps-section{margin-top:3rem;border-top:1px solid var(--border);padding-top:2rem}
+  .steps-header{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.06em;color:#fff;margin-bottom:1.5rem}
+  .steps-card{border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1rem}
+  .steps-card-header{display:flex;align-items:center;gap:1rem;padding:1rem 1.25rem;cursor:pointer;background:var(--surface);border-bottom:1px solid var(--border);user-select:none}
+  .steps-card-header:hover{background:var(--card)}
+  .steps-card-num{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;line-height:1;letter-spacing:.05em;min-width:30px}
+  .steps-card-title{font-size:.82rem;font-weight:600;letter-spacing:.05em;flex:1}
+  .steps-card-meta{display:flex;gap:.5rem;flex-wrap:wrap}
+  .meta-pill{font-size:.62rem;padding:.15rem .5rem;border-radius:3px;background:var(--faint);color:var(--muted);letter-spacing:.05em}
+  .steps-toggle{color:var(--muted);font-size:.8rem;transition:transform .2s}
+  .steps-toggle.open{transform:rotate(90deg)}
+  .steps-body{padding:1.25rem;display:none;background:var(--card)}
+  .steps-body.open{display:block}
+  .step-item{display:flex;gap:.875rem;margin-bottom:.875rem;align-items:flex-start}
+  .step-n{font-size:.62rem;font-weight:600;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.05rem}
+  .step-n.d{background:rgba(232,184,74,.15);color:var(--c-ducky)}
+  .step-n.s{background:rgba(74,184,232,.15);color:var(--c-ds)}
+  .step-action{font-size:.8rem;color:var(--text);font-weight:500}
+  .step-detail{font-size:.7rem;color:var(--muted);margin-top:.2rem;line-height:1.5}
+  .tip{background:rgba(74,184,232,.06);border:1px solid rgba(74,184,232,.15);border-radius:5px;padding:.75rem 1rem;font-size:.72rem;color:rgba(74,184,232,.8);margin-top:.75rem;line-height:1.6}
+  @media(max-width:600px){.day-row{grid-template-columns:80px 1fr}.session-time{min-width:60px}.header::before{display:none}.alert-bar{margin:1rem 1rem 0}}
 </style>
 </head>
 <body>
 
 <div class="header">
   <div style="position:relative;z-index:1">
-    <h1>Assignment Planner</h1>
-    <div class="header-sub">UWE Bristol · Cyber Security · 3 Mar → 7 May 2026</div>
+    <h1>Assignment Planner — Revised</h1>
+    <div class="header-sub">UWE Bristol · Cyber Security · 4 Mar → 7 May 2026</div>
     <div class="deadline-row">
-      <div class="dl-badge f"><div class="dl-dot f"></div>Forensics — 2 Apr 2026</div>
-      <div class="dl-badge d"><div class="dl-dot d"></div>Rubber Ducky — 23 Apr 2026</div>
-      <div class="dl-badge s"><div class="dl-dot s"></div>DS Task 4 — 7 May 2026</div>
+      <div class="dl-badge paused"><div class="dl-dot" style="background:var(--c-forensics)"></div>Forensics — ⏸ PAUSED (uni to fix)</div>
+      <div class="dl-badge d"><div class="dl-dot" style="background:var(--c-ducky)"></div>Rubber Ducky — 23 Apr 2026</div>
+      <div class="dl-badge s"><div class="dl-dot" style="background:var(--c-ds)"></div>DS Task 4 — 7 May 2026</div>
     </div>
   </div>
+</div>
+
+<div class="alert-bar">
+  ⏸ <strong>Forensics is on hold</strong> — software access broken, waiting on UWE to fix it. All forensics time has been redistributed to Rubber Ducky and DS Task 4 so you stay fully productive. Buffer weeks are held free — the moment access is restored, forensics slots straight back in. If it's still not fixed by <strong>26 Mar</strong>, email your module leader requesting an extension before the 2 Apr deadline.
 </div>
 
 <div class="container">
 
   <div class="commitments">
-    <strong>Your fixed commitments:</strong>&nbsp;&nbsp;
+    <strong>Fixed commitments —</strong>
     🎓 Mon lectures until 11:00 + 30 min travel → free from 11:30 &nbsp;|&nbsp;
-    🎓 Tue lectures 14:00–17:00 → free until 14:00 and after 17:30 &nbsp;|&nbsp;
-    🏓 Wed Padel 16:00–17:00 → free all morning
+    🎓 Tue lectures 14:00–17:00 → free until 14:00, free after 17:30 &nbsp;|&nbsp;
+    🏓 Wed padel 16:00–17:00
   </div>
 
   <div class="legend">
-    <div class="legend-item"><div class="legend-sq" style="background:rgba(232,98,74,0.5)"></div>Forensics</div>
-    <div class="legend-item"><div class="legend-sq" style="background:rgba(232,184,74,0.5)"></div>Rubber Ducky</div>
-    <div class="legend-item"><div class="legend-sq" style="background:rgba(74,184,232,0.5)"></div>DS Task 4</div>
-    <div class="legend-item"><div class="legend-sq" style="background:rgba(123,94,167,0.5)"></div>Rest day</div>
-    <div class="legend-item"><div class="legend-sq" style="background:rgba(74,232,138,0.3)"></div>Break / buffer</div>
+    <div class="legend-item"><div class="legend-sq" style="background:rgba(232,184,74,.6)"></div>Rubber Ducky</div>
+    <div class="legend-item"><div class="legend-sq" style="background:rgba(74,184,232,.6)"></div>DS Task 4</div>
+    <div class="legend-item"><div class="legend-sq" style="background:rgba(123,94,167,.6)"></div>Rest day</div>
+    <div class="legend-item"><div class="legend-sq" style="background:rgba(74,232,138,.3)"></div>Buffer / forensics slot</div>
   </div>
 
-  <!-- ══════════════════ WEEK 1 ══════════════════ -->
+  <!-- WEEK 1 -->
   <div class="week-block">
     <div class="week-header">
       <span class="week-num">W1</span>
-      <span class="week-title">Forensics — Kickoff &amp; Investigation</span>
+      <span class="week-title">Rubber Ducky — Attack Design &amp; Script</span>
       <span class="week-dates">4–8 Mar</span>
     </div>
 
-    <!-- Wed 4 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Wed</div>
-        <div class="day-date">4 Mar</div>
-        <div class="day-note">Padel 16:00–17:00</div>
-      </div>
+      <div class="day-label"><div class="day-name">Wed</div><div class="day-date">4 Mar</div><div class="day-note">Padel 16–17</div></div>
       <div class="day-content">
         <div class="session-row">
           <div class="session-time">09:00–10:30</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">File system overview, browser history, recent documents, downloads. Bookmark anything potentially relevant to the case in EnCase.</div>
-          </div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Read the full assessment brief and the lab worksheet (Learning Unit 16 on Blackboard). Understand exactly what to submit: ① video link (max 15 min) ② Ducky Script .docx ③ PowerPoint slides.</div></div>
         </div>
         <div class="break-stripe">☕ 10:30–11:00 break</div>
         <div class="session-row">
           <div class="session-time">11:00–12:30</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Registry analysis: user activity, installed programs, USB device history, recently accessed files, startup items. Document every tool used and every result.</div>
-          </div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Design your attack scenario on paper. Choose one: credential harvesting, persistence, or data exfiltration. Sketch the full attack chain — what happens at each stage. Note which MITRE ATT&amp;CK TTPs apply to each stage as you go.</div></div>
         </div>
         <div class="break-stripe">🏓 16:00–17:00 Padel</div>
         <div class="session-row">
-          <div class="session-time">17:30–18:30</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Encryption and password recovery analysis. Document attempts even when they find nothing — negative results show process and earn marks.</div>
-          </div>
+          <div class="session-time">17:30–19:00</div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Pick up Raspberry Pi Pico from a lab session. Configure as HID device. Test a basic Ducky Script (open Notepad, type text) inside a VM to confirm the hardware works before writing the real attack.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Thu 5 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Thu</div>
-        <div class="day-date">5 Mar</div>
-      </div>
+      <div class="day-label"><div class="day-name">Thu</div><div class="day-date">5 Mar</div></div>
       <div class="day-content">
         <div class="session-row">
           <div class="session-time">Session 1 · 90 min</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Steganography checks on image files. Metadata analysis. Deleted file recovery. Document your methodology as you go.</div>
-          </div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Write the full Ducky Script. Comment every section as you go — comments are assessed for understanding. Do NOT use automated generation tools, the brief prohibits it. Test in VM after each major section.</div></div>
         </div>
-        <div class="break-stripe">☕ 20-min break</div>
+        <div class="break-stripe">☕ 20 min break</div>
         <div class="session-row">
           <div class="session-time">Session 2 · 90 min</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Timeline analysis — piece together the sequence of events. Refine your bookmarks: keep only artefacts relevant to the case scenario, remove anything unrelated.</div>
-          </div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Write any supporting Bash or PowerShell scripts. Test the complete attack chain end-to-end in a VM. Fix any timing or execution issues.</div></div>
         </div>
-        <div class="break-stripe">☕ 30-min break</div>
+        <div class="break-stripe">☕ 30 min break</div>
         <div class="session-row">
           <div class="session-time">Session 3 · 90 min</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Generate Provenance Report from EnCase using the report template feature (auto-generated from bookmarks). Check all 9 required fields are present in every block.</div>
-            <div class="session-note">Must be auto-generated — do NOT type it manually</div>
-          </div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Map every attack stage to specific MITRE ATT&amp;CK TTP IDs — use the actual numbers (e.g. T1059.001). Vague mappings lose marks. This section is worth 15% of the total mark.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Fri 6 Mar — Rest -->
-    <div class="day-row rest">
+    <div class="day-row">
       <div class="day-label"><div class="day-name">Fri</div><div class="day-date">6 Mar</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day — let the investigation settle in your head</div></div>
-    </div>
-
-    <!-- Sat 7 Mar -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Sat</div>
-        <div class="day-date">7 Mar</div>
-      </div>
       <div class="day-content">
         <div class="session-row">
           <div class="session-time">Session 1 · 90 min</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Write up Contemporaneous Notes Part 1. Fill in all process sections thoroughly. Every action must be documented so an independent examiner can repeat your exact steps.</div>
-          </div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Write stage-specific mitigations (15% of marks). Each one must directly address a specific stage in YOUR attack — not generic advice. Map mitigations back to MITRE where possible.</div></div>
         </div>
-        <div class="break-stripe">☕ 20-min break</div>
+        <div class="break-stripe">☕ 20 min break</div>
         <div class="session-row">
           <div class="session-time">Session 2 · 90 min</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Contemporaneous Notes Part 2. Justify every action AND every non-action. This section is 60% of your forensics marks — be thorough.</div>
-          </div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Build PowerPoint slides — Part 1: scenario intro, target system and attacker objectives, technical attack setup, CIA triad impact. Use diagrams wherever possible — presentation quality is 10% of marks.</div></div>
         </div>
-        <div class="break-stripe">☕ 30-min break</div>
+        <div class="break-stripe">☕ 30 min break</div>
         <div class="session-row">
           <div class="session-time">Session 3 · 90 min</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Review both documents against the marking criteria line by line. Back up both files in at least 2 places right now — the brief specifically warns you about this.</div>
-          </div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Finish slides — MITRE ATT&amp;CK mapping diagram (visual diagram beats a plain list), stage-specific mitigations slide. Every slide needs a clear purpose.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Sun 8 Mar — Rest -->
     <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Sun</div><div class="day-date">8 Mar</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day — forensics nearly done, big week ahead</div></div>
+      <div class="day-label"><div class="day-name">Sat–Sun</div><div class="day-date">7–8 Mar</div></div>
+      <div class="day-content"><div class="rest-banner">🛌 Rest weekend — strong start on Rubber Ducky</div></div>
     </div>
   </div>
 
-  <!-- ══════════════════ WEEK 2 ══════════════════ -->
+  <!-- WEEK 2 -->
   <div class="week-block">
     <div class="week-header">
       <span class="week-num">W2</span>
-      <span class="week-title">Forensics — Final polish + Start Rubber Ducky</span>
+      <span class="week-title">Rubber Ducky — Narration, Record &amp; Submit + Start DS</span>
       <span class="week-dates">9–15 Mar</span>
     </div>
 
-    <!-- Mon 9 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Mon</div>
-        <div class="day-date">9 Mar</div>
-        <div class="day-note">Free from 11:30</div>
-      </div>
+      <div class="day-label"><div class="day-name">Mon</div><div class="day-date">9 Mar</div><div class="day-note">Free from 11:30</div></div>
       <div class="day-content">
         <div class="break-stripe">🎓 Lectures until 11:00 + 30 min travel</div>
         <div class="session-row">
           <div class="session-time">11:30–13:00</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Address any gaps found in the review. Strengthen weak sections of the notes. Final read-through — does it read coherently? Could someone else repeat every step?</div>
-          </div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Write the full narration script. Structure: intro (1 min) → attack design (3 min) → live demo (5 min) → MITRE mapping (3 min) → mitigations (3 min). Target exactly 14–15 min — anything over 15 min won't be marked beyond that point.</div></div>
         </div>
         <div class="break-stripe">☕ 13:00–13:30 lunch</div>
         <div class="session-row">
-          <div class="session-time">13:30–14:30</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Final forensics check — both documents ready, correct format (Word or PDF), clearly named. Everything in order to submit this week.</div>
-          </div>
+          <div class="session-time">13:30–15:00</div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Practise narration out loud. Time it with a phone. Do at least 2 full run-throughs until the flow feels natural. Cut anything that pushes it over 15 min.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Tue 10 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Tue</div>
-        <div class="day-date">10 Mar</div>
-        <div class="day-note">Free until 14:00</div>
-      </div>
+      <div class="day-label"><div class="day-name">Tue</div><div class="day-date">10 Mar</div><div class="day-note">Free until 14:00</div></div>
       <div class="day-content">
         <div class="session-row">
-          <div class="session-time">09:00–10:00</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">🚨 Submit both documents to Blackboard well before the 2 Apr deadline. Confirm receipt. Forensics done — ahead of schedule!</div>
-            <div class="session-note">Submitting early means no deadline panic later. 48-hr late window exists anyway.</div>
-          </div>
+          <div class="session-time">09:00–10:30</div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Record a rough draft using Panopto or OBS. Show your face. Go through the full video without stopping. Watch it back — note timing issues, anything unclear, whether the live demo footage is visible.</div></div>
         </div>
-        <div class="break-stripe">☕ Celebrate the submission!</div>
+        <div class="break-stripe">☕ 10:30–11:00 break</div>
         <div class="session-row">
-          <div class="session-time">10:30–12:00</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Read the Rubber Ducky lab worksheet (Learning Unit 16 on Blackboard). Design your attack scenario — credential harvesting, persistence, or data exfiltration. Sketch the full attack chain on paper.</div>
-          </div>
+          <div class="session-time">11:00–13:00</div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Fix issues from the rough cut. Re-record weak sections. Record the final version. Upload to Panopto or OneDrive. Set permissions to "anyone with the link" and test it from a different browser immediately.</div></div>
         </div>
         <div class="break-stripe">🎓 14:00–17:00 lectures + 30 min travel</div>
       </div>
     </div>
 
-    <!-- Wed 11 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Wed</div>
-        <div class="day-date">11 Mar</div>
-        <div class="day-note">Padel 16:00–17:00</div>
-      </div>
+      <div class="day-label"><div class="day-name">Wed</div><div class="day-date">11 Mar</div><div class="day-note">Padel 16–17</div></div>
       <div class="day-content">
         <div class="session-row">
-          <div class="session-time">09:00–10:30</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Pick up Raspberry Pi Pico from lab. Configure it as an HID device following the worksheet. Test a basic Ducky Script (open notepad, type text) to confirm it works in a VM.</div>
-          </div>
+          <div class="session-time">09:00–10:00</div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">Finalise Ducky Script .docx — plain text, comments throughout, Harvard references for anything borrowed. Confirm all 3 items are ready: ① video link ② script .docx ③ PowerPoint.</div></div>
         </div>
-        <div class="break-stripe">☕ 10:30–11:00 break</div>
+        <div class="break-stripe">☕ 10:00–10:30 break</div>
         <div class="session-row">
-          <div class="session-time">11:00–12:30</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Start writing the full Ducky Script attack. Add comments to every section as you go. Do NOT use automated generation tools — prohibited and assessed for originality.</div>
+          <div class="session-time">10:30–12:30</div>
+          <div class="session-body"><span class="tag d">Rubber Ducky</span>
+            <div class="session-desc">🚨 Submit all 3 items to Blackboard. Confirm receipt. Done — 6 weeks ahead of the 23 Apr deadline!</div>
+            <div class="session-note">Submitting now means the official deadline is just a safety net</div>
           </div>
         </div>
         <div class="break-stripe">🏓 16:00–17:00 Padel</div>
+        <div class="session-row">
+          <div class="session-time">17:30–19:00</div>
+          <div class="session-body"><span class="tag s">DS Task 4</span>
+            <div class="session-desc">Read the DS Task 4 spec fully. Understand the 4 monitoring areas and all marking criteria before starting. Note everything that earns marks.</div></div>
+        </div>
       </div>
     </div>
 
-    <!-- Thu 12 Mar — Rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Thu</div><div class="day-date">12 Mar</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day</div></div>
-    </div>
-
-    <!-- Fri 13 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Fri</div>
-        <div class="day-date">13 Mar</div>
-      </div>
+      <div class="day-label"><div class="day-name">Thu</div><div class="day-date">12 Mar</div></div>
       <div class="day-content">
         <div class="session-row">
           <div class="session-time">Session 1 · 90 min</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Complete the full Ducky Script. Write any associated Bash or PowerShell scripts. Test the full attack chain end-to-end in a VM. Fix any issues.</div>
-          </div>
+          <div class="session-body"><span class="tag s">DS Task 4</span>
+            <div class="session-desc">Write the Data Specification Document — categories 1 (Network) and 2 (Endpoints). Each row needs: subcategory, metric/format, frequency, collection mode, mechanism, recorded at, storage. 3 metrics minimum per category.</div></div>
         </div>
-        <div class="break-stripe">☕ 20-min break</div>
+        <div class="break-stripe">☕ 20 min break</div>
         <div class="session-row">
           <div class="session-time">Session 2 · 90 min</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Map every attack stage to specific MITRE ATT&CK TTP IDs (e.g. T1059.001). Identify stage-specific mitigations — these must address YOUR attack, not generic advice. This is 15% of marks.</div>
-          </div>
+          <div class="session-body"><span class="tag s">DS Task 4</span>
+            <div class="session-desc">Complete Data Spec Document — categories 3 (Backups) and 4 (Staff Readiness). Review every row has all required columns. This document earns 4 dedicated marks.</div></div>
         </div>
-        <div class="break-stripe">☕ 30-min break</div>
+        <div class="break-stripe">☕ 30 min break</div>
         <div class="session-row">
           <div class="session-time">Session 3 · 90 min</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Build PowerPoint slides Part 1: scenario intro, target system and attacker objectives, technical attack setup, CIA triad impact discussion.</div>
-          </div>
+          <div class="session-body"><span class="tag s">DS Task 4</span>
+            <div class="session-desc">Set up Python environment — install Streamlit and Plotly. Create 2 dummy CSV files: network_traffic.csv and endpoint_data.csv with 5–10 rows of realistic dummy values. Build and test the first 2 dashboard charts.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Sat 14 Mar — Rest -->
     <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Sat</div><div class="day-date">14 Mar</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day</div></div>
+      <div class="day-label"><div class="day-name">Fri</div><div class="day-date">13 Mar</div></div>
+      <div class="day-content"><div class="rest-banner">🛌 Rest day — Rubber Ducky submitted, DS well underway</div></div>
     </div>
 
-    <!-- Sun 15 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Sun</div>
-        <div class="day-date">15 Mar</div>
-      </div>
+      <div class="day-label"><div class="day-name">Sat</div><div class="day-date">14 Mar</div></div>
       <div class="day-content">
         <div class="session-row">
           <div class="session-time">Session 1 · 90 min</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Finish slides: MITRE ATT&CK mapping diagram (visual beats a list), stage-specific mitigations mapped to the framework. Presentation quality is 10% of marks.</div>
-          </div>
+          <div class="session-body"><span class="tag s">DS Task 4</span>
+            <div class="session-desc">Build charts 3 and 4 — Backup and Staff Readiness visualisations. Focus on getting the data loading and displaying correctly before worrying about design.</div></div>
         </div>
-        <div class="break-stripe">☕ 20-min break</div>
+        <div class="break-stripe">☕ 20 min break</div>
         <div class="session-row">
           <div class="session-time">Session 2 · 90 min</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Write narration script. Structure: intro (1 min) → attack design (3 min) → live demo (5 min) → MITRE mapping (3 min) → mitigations (3 min). Aim for 14–15 min exactly.</div>
-          </div>
+          <div class="session-body"><span class="tag s">DS Task 4</span>
+            <div class="session-desc">Add geo-spatial chart (px.scatter_geo — map network traffic source countries, 2 dedicated marks) and interactive chart (st.selectbox to filter data, 2 dedicated marks). These are the two highest-impact quick wins.</div></div>
         </div>
       </div>
+    </div>
+
+    <div class="day-row rest">
+      <div class="day-label"><div class="day-name">Sun</div><div class="day-date">15 Mar</div></div>
+      <div class="day-content"><div class="rest-banner">🛌 Rest day</div></div>
     </div>
   </div>
 
-  <!-- ══════════════════ WEEK 3 ══════════════════ -->
+  <!-- WEEK 3 -->
   <div class="week-block">
     <div class="week-header">
       <span class="week-num">W3</span>
-      <span class="week-title">Rubber Ducky — Record &amp; Finalise Video</span>
+      <span class="week-title">DS Task 4 — Polish &amp; Submit Early</span>
       <span class="week-dates">16–22 Mar</span>
     </div>
 
-    <!-- Mon 16 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Mon</div>
-        <div class="day-date">16 Mar</div>
-        <div class="day-note">Free from 11:30</div>
-      </div>
+      <div class="day-label"><div class="day-name">Mon</div><div class="day-date">16 Mar</div><div class="day-note">Free from 11:30</div></div>
       <div class="day-content">
         <div class="break-stripe">🎓 Lectures until 11:00 + 30 min travel</div>
         <div class="session-row">
           <div class="session-time">11:30–13:00</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Practice narration out loud. Time it. Cut if over 15 min, add detail if under 14 min. Do at least 2 full run-throughs until the flow feels natural.</div>
-          </div>
+          <div class="session-body"><span class="tag s">DS Task 4</span>
+            <div class="session-desc">Build charts 5 and 6. Polish overall layout — consistent colours, readable labels, clear chart titles. Important info placed prominently. Design is 4 marks — don't leave it as an afterthought.</div></div>
         </div>
         <div class="break-stripe">☕ 13:00–13:30 lunch</div>
         <div class="session-row">
           <div class="session-time">13:30–15:00</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Record a rough draft using Panopto or OBS. Show your face. Get through the full video once without stopping. Watch it back and note what to fix.</div>
-          </div>
+          <div class="session-body"><span class="tag s">DS Task 4</span>
+            <div class="session-desc">Final criteria check: ✓ 3 metrics × 4 categories in doc ✓ 6 charts ✓ 2+ input CSV files ✓ 1 geo-spatial chart ✓ 1 interactive chart ✓ Effective design. Fix anything missing.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Tue 17 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Tue</div>
-        <div class="day-date">17 Mar</div>
-        <div class="day-note">Free until 14:00</div>
-      </div>
+      <div class="day-label"><div class="day-name">Tue</div><div class="day-date">17 Mar</div><div class="day-note">Free until 14:00</div></div>
       <div class="day-content">
         <div class="session-row">
           <div class="session-time">09:00–10:30</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Fix issues from the rough cut. Re-record weak sections. Check: face visible, narration clear, attack demo clearly shown in screen capture.</div>
+          <div class="session-body"><span class="tag s">DS Task 4</span>
+            <div class="session-desc">Package submission — all code files, CSV data files, Data Specification Document. Run the dashboard one final time. Everything working? Submit to Blackboard — 7 weeks before the 7 May deadline!</div>
+            <div class="session-note">DS Task 4 done. Official deadline is now just a safety net.</div>
           </div>
         </div>
-        <div class="break-stripe">☕ 10:30–11:00 break (watching yourself is draining)</div>
+        <div class="break-stripe">🎉 DS Task 4 submitted!</div>
         <div class="session-row">
-          <div class="session-time">11:00–12:30</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Record the final version. Upload to Panopto/YouTube/OneDrive. Set permissions to "anyone with the link." Test the link from a different browser immediately.</div>
-          </div>
+          <div class="session-time">11:00–13:30</div>
+          <div class="session-body"><span class="tag b">Buffer</span>
+            <div class="session-desc">Free buffer slot. If forensics access has been restored — start the investigation now using the step-by-step guide below. If still waiting — take this as a full rest block.</div></div>
         </div>
         <div class="break-stripe">🎓 14:00–17:00 lectures + 30 min travel</div>
       </div>
     </div>
 
-    <!-- Wed 18 Mar -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Wed</div>
-        <div class="day-date">18 Mar</div>
-        <div class="day-note">Padel 16:00–17:00</div>
-      </div>
-      <div class="day-content">
-        <div class="session-row">
-          <div class="session-time">09:00–10:00</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Finalise Ducky Script .docx — plain text format, comments throughout, UWE Harvard references for any borrowed elements. Confirm PowerPoint is saved. All 3 submission items ready.</div>
-          </div>
-        </div>
-        <div class="break-stripe">🏓 16:00–17:00 Padel — enjoy it, video is done!</div>
-      </div>
-    </div>
-
-    <!-- Thu 19 Mar — Rest -->
     <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Thu</div><div class="day-date">19 Mar</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day — video recorded and ready, well ahead of 23 Apr deadline</div></div>
+      <div class="day-label"><div class="day-name">Wed–Sun</div><div class="day-date">18–22 Mar</div></div>
+      <div class="day-content"><div class="rest-banner">🛌 Rest / forensics buffer — both main assignments submitted. Use this time for forensics if access restored, otherwise rest fully.</div></div>
+    </div>
+  </div>
+
+  <!-- WEEK 4–5 FORENSICS BUFFER -->
+  <div class="week-block">
+    <div class="week-header">
+      <span class="week-num">W4–5</span>
+      <span class="week-title">Forensics Buffer — Held Free Until Access Restored</span>
+      <span class="week-dates">23 Mar – 5 Apr</span>
     </div>
 
-    <!-- Fri 20 Mar — buffer -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Fri</div>
-        <div class="day-date">20 Mar</div>
-      </div>
+      <div class="day-label"><div class="day-name">23–25 Mar</div><div class="day-date">Week 4</div></div>
       <div class="day-content">
         <div class="session-row">
           <div class="session-time">As needed</div>
-          <div class="session-body">
-            <span class="tag b">Buffer</span>
-            <div class="session-desc">Catch-up day — use if anything went wrong in the video recording week. If all is well, treat this as a bonus rest day or get a head start on DS Task 4.</div>
-          </div>
+          <div class="session-body"><span class="tag b">Forensics Buffer</span>
+            <div class="session-desc">If access restored — investigation: file system analysis, browser history, registry, encryption, steganography. Document every action in Contemporaneous Notes from the first moment.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Sat 21 Mar — Rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Sat</div><div class="day-date">21 Mar</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day</div></div>
-    </div>
-
-    <!-- Sun 22 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Sun</div>
-        <div class="day-date">22 Mar</div>
-      </div>
+      <div class="day-label"><div class="day-name">26 Mar</div><div class="day-date">Thu</div><div class="day-note" style="color:#f87171">⚠️ Chase deadline</div></div>
       <div class="day-content">
         <div class="session-row">
-          <div class="session-time">Session 1 · 60 min</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Read the DS Task 4 spec fully. Understand the 4 monitoring areas and all marking criteria. Start the Data Specification Document — categories 1 (Network) and 2 (Endpoints).</div>
-          </div>
-        </div>
-        <div class="break-stripe">☕ 20-min break</div>
-        <div class="session-row">
-          <div class="session-time">Session 2 · 60 min</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Complete Data Spec Document — categories 3 (Backups) and 4 (Staff Readiness). Review every row has all required columns filled in.</div>
-          </div>
+          <div class="session-time">Today</div>
+          <div class="session-body"><span class="tag b">Action</span>
+            <div class="session-desc">If forensics access still not restored — email module leader TODAY requesting an extension before the 2 Apr deadline. Keep a copy of the email as evidence. Don't wait any longer.</div></div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ══════════════════ WEEK 4 ══════════════════ -->
-  <div class="week-block">
-    <div class="week-header">
-      <span class="week-num">W4</span>
-      <span class="week-title">DS Task 4 — Build the Dashboard</span>
-      <span class="week-dates">23–29 Mar</span>
-    </div>
-
-    <!-- Mon 23 Mar -->
     <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Mon</div>
-        <div class="day-date">23 Mar</div>
-        <div class="day-note">Free from 11:30</div>
-      </div>
-      <div class="day-content">
-        <div class="break-stripe">🎓 Lectures until 11:00 + 30 min travel</div>
-        <div class="session-row">
-          <div class="session-time">11:30–13:00</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Set up Python environment (Streamlit + Plotly). Create 2 dummy CSV files — network_traffic.csv and endpoint_data.csv with 5–10 rows each. Build first 2 dashboard charts.</div>
-          </div>
-        </div>
-        <div class="break-stripe">☕ 13:00–13:30 lunch</div>
-        <div class="session-row">
-          <div class="session-time">13:30–15:00</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Build charts 3 and 4. Focus on Endpoint and Backup visualisations.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tue 24 Mar -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Tue</div>
-        <div class="day-date">24 Mar</div>
-        <div class="day-note">Free until 14:00</div>
-      </div>
-      <div class="day-content">
-        <div class="session-row">
-          <div class="session-time">09:00–10:30</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Add the geo-spatial visualisation (Plotly scatter_geo — map network traffic sources to countries). This earns 2 dedicated marks.</div>
-          </div>
-        </div>
-        <div class="break-stripe">☕ 10:30–11:00 break</div>
-        <div class="session-row">
-          <div class="session-time">11:00–12:30</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Add the interactive visualisation — dropdown or filter on one chart. In Streamlit: st.selectbox. In Dash: @app.callback. 2 dedicated marks.</div>
-          </div>
-        </div>
-        <div class="break-stripe">🎓 14:00–17:00 lectures + 30 min travel</div>
-      </div>
-    </div>
-
-    <!-- Wed 25 Mar -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Wed</div>
-        <div class="day-date">25 Mar</div>
-        <div class="day-note">Padel 16:00–17:00</div>
-      </div>
-      <div class="day-content">
-        <div class="session-row">
-          <div class="session-time">09:00–10:30</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Build chart 6 (final chart). Polish overall layout — consistent colours, readable fonts, clear titles on every chart. Important info placed prominently. 4 marks are for design.</div>
-          </div>
-        </div>
-        <div class="break-stripe">☕ 10:30–11:00 break</div>
-        <div class="session-row">
-          <div class="session-time">11:00–12:00</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Final check: ✓ 3 metrics × 4 categories ✓ 6 charts ✓ 2+ input files ✓ 1 geo-spatial ✓ 1 interactive ✓ Effective design. Fix anything missing.</div>
-          </div>
-        </div>
-        <div class="break-stripe">🏓 16:00–17:00 Padel</div>
-      </div>
-    </div>
-
-    <!-- Thu 26 Mar — Rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Thu</div><div class="day-date">26 Mar</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day — dashboard basically done, loads of time left before 7 May</div></div>
-    </div>
-
-    <!-- Fri 27 Mar — Buffer -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Fri</div>
-        <div class="day-date">27 Mar</div>
-      </div>
+      <div class="day-label"><div class="day-name">27 Mar – 1 Apr</div><div class="day-date">Week 5</div></div>
       <div class="day-content">
         <div class="session-row">
           <div class="session-time">As needed</div>
-          <div class="session-body">
-            <span class="tag b">Buffer</span>
-            <div class="session-desc">Catch-up day for DS Task 4 or Rubber Ducky. Polish the dashboard further, or use this time for anything that needs fixing. Take as a rest day if you're fully on track.</div>
-          </div>
+          <div class="session-body"><span class="tag b">Forensics Buffer</span>
+            <div class="session-desc">Final forensics push if access restored — complete Contemporaneous Notes, generate Provenance Report, check all 9 required fields in every bookmark block.</div></div>
         </div>
       </div>
     </div>
 
-    <!-- Sat 28 Mar — Rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Sat</div><div class="day-date">28 Mar</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day</div></div>
+    <div class="day-row" style="border-color:rgba(100,116,139,.3)">
+      <div class="day-label"><div class="day-name">Thu</div><div class="day-date">2 Apr</div><div class="day-note" style="color:#94a3b8">⚠️ DEADLINE</div></div>
+      <div class="day-content">
+        <div class="deadline-banner" style="background:rgba(100,116,139,.1);color:#94a3b8;border-left:3px solid #64748b">⏸ Forensics deadline — 14:00. Submit if access was restored. If not — rely on extension request sent 26 Mar.</div>
+      </div>
     </div>
 
-    <!-- Sun 29 Mar — Rest -->
     <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Sun</div><div class="day-date">29 Mar</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day — you've earned a full weekend</div></div>
+      <div class="day-label"><div class="day-name">Fri–Sun</div><div class="day-date">3–5 Apr</div></div>
+      <div class="day-content"><div class="rest-banner">🛌 Rest — forensics deadline passed, everything else already submitted</div></div>
     </div>
   </div>
 
-  <!-- ══════════════════ WEEK 5 ══════════════════ -->
+  <!-- WEEK 6–10 SAFETY NET -->
   <div class="week-block">
     <div class="week-header">
-      <span class="week-num">W5</span>
-      <span class="week-title">Forensics Deadline Week — Submit &amp; Rest</span>
-      <span class="week-dates">30 Mar – 5 Apr</span>
+      <span class="week-num">W6–10</span>
+      <span class="week-title">Official Deadlines — Everything Already Submitted</span>
+      <span class="week-dates">6 Apr – 7 May</span>
     </div>
 
-    <!-- Mon 30 Mar -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Mon</div>
-        <div class="day-date">30 Mar</div>
-        <div class="day-note">Free from 11:30</div>
-      </div>
+    <div class="day-row" style="border-color:rgba(232,184,74,.3)">
+      <div class="day-label"><div class="day-name">Thu</div><div class="day-date">23 Apr</div><div class="day-note" style="color:var(--c-ducky)">⚠️ DEADLINE</div></div>
       <div class="day-content">
-        <div class="break-stripe">🎓 Lectures until 11:00 + 30 min travel</div>
-        <div class="session-row">
-          <div class="session-time">11:30–12:30</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">Final forensics check if not already submitted — read both documents one last time, confirm correct format and filenames. Ready to go.</div>
-            <div class="session-note">If you submitted in Week 2 already, skip this — take the afternoon off</div>
-          </div>
-        </div>
+        <div class="deadline-banner d">✅ Rubber Ducky official deadline — 14:00. Submitted in Week 2. Just confirm it's showing on Blackboard.</div>
       </div>
     </div>
 
-    <!-- Tue 31 Mar -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Tue</div><div class="day-date">31 Mar</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day before deadline</div></div>
-    </div>
-
-    <!-- Wed 1 Apr -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Wed</div>
-        <div class="day-date">1 Apr</div>
-        <div class="day-note">Padel 16:00–17:00</div>
-      </div>
+    <div class="day-row" style="border-color:rgba(74,184,232,.3);margin-top:2px">
+      <div class="day-label"><div class="day-name">Thu</div><div class="day-date">7 May</div><div class="day-note" style="color:var(--c-ds)">⚠️ DEADLINE</div></div>
       <div class="day-content">
-        <div class="session-row">
-          <div class="session-time">Morning</div>
-          <div class="session-body">
-            <span class="tag f">Forensics</span>
-            <div class="session-desc">If not yet submitted — submit today, a day early. No need to wait until the deadline. Confirm receipt on Blackboard.</div>
-            <div class="session-note">Deadline is tomorrow — submit today to avoid any last-minute tech issues</div>
-          </div>
-        </div>
-        <div class="break-stripe">🏓 16:00–17:00 Padel</div>
-      </div>
-    </div>
-
-    <!-- Thu 2 Apr — FORENSICS DEADLINE -->
-    <div class="day-row deadline-row-item">
-      <div class="day-label">
-        <div class="day-name">Thu</div>
-        <div class="day-date">2 Apr</div>
-        <div class="day-note" style="color:var(--c-forensics)">⚠️ DEADLINE</div>
-      </div>
-      <div class="day-content">
-        <div class="deadline-banner f">🚨 Forensics deadline — before 14:00. Submit if not already done. Confirm receipt.</div>
-        <div class="session-row">
-          <div class="session-time">After submit</div>
-          <div class="session-body">
-            <span class="tag b">Rest</span>
-            <div class="session-desc">Once submitted — that's it. Take the rest of the day off. Forensics is done.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Fri 3 Apr — Rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Fri</div><div class="day-date">3 Apr</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day — forensics submitted, give yourself a proper break</div></div>
-    </div>
-
-    <!-- Sat 4 Apr — Rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Sat</div><div class="day-date">4 Apr</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day</div></div>
-    </div>
-
-    <!-- Sun 5 Apr — Rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Sun</div><div class="day-date">5 Apr</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Full rest weekend — you've submitted the hardest assignment</div></div>
-    </div>
-  </div>
-
-  <!-- ══════════════════ WEEK 6 ══════════════════ -->
-  <div class="week-block">
-    <div class="week-header">
-      <span class="week-num">W6</span>
-      <span class="week-title">Rubber Ducky — Review &amp; Any Final Fixes</span>
-      <span class="week-dates">6–12 Apr</span>
-    </div>
-
-    <!-- Mon 6 Apr -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Mon</div>
-        <div class="day-date">6 Apr</div>
-        <div class="day-note">Free from 11:30</div>
-      </div>
-      <div class="day-content">
-        <div class="break-stripe">🎓 Lectures until 11:00 + 30 min travel</div>
-        <div class="session-row">
-          <div class="session-time">11:30–13:00</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Watch your Rubber Ducky video back in full with fresh eyes. Note anything you want to fix. Test the share link again from a different device.</div>
-          </div>
-        </div>
-        <div class="break-stripe">☕ 13:00–13:30 lunch</div>
-        <div class="session-row">
-          <div class="session-time">13:30–14:30</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Fix any minor issues from the review. Re-record sections if needed — remember last edit must be before 23 Apr. Check .docx script and PowerPoint are finalised.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tue 7 Apr — Rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Tue</div><div class="day-date">7 Apr</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day</div></div>
-    </div>
-
-    <!-- Wed 8 Apr — Buffer -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Wed</div>
-        <div class="day-date">8 Apr</div>
-        <div class="day-note">Padel 16:00–17:00</div>
-      </div>
-      <div class="day-content">
-        <div class="session-row">
-          <div class="session-time">Morning</div>
-          <div class="session-body">
-            <span class="tag b">Buffer</span>
-            <div class="session-desc">Free buffer morning. Use for any remaining DS Task 4 tweaks, Rubber Ducky fixes, or take it as extra rest. You're well ahead of schedule.</div>
-          </div>
-        </div>
-        <div class="break-stripe">🏓 16:00–17:00 Padel</div>
-      </div>
-    </div>
-
-    <!-- Thu–Sun rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Thu–Sun</div><div class="day-date">9–12 Apr</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest / light catch-up days — you're comfortably ahead on everything</div></div>
-    </div>
-  </div>
-
-  <!-- ══════════════════ WEEK 7 ══════════════════ -->
-  <div class="week-block">
-    <div class="week-header">
-      <span class="week-num">W7</span>
-      <span class="week-title">Rubber Ducky — Final Check &amp; Pre-submit</span>
-      <span class="week-dates">13–19 Apr</span>
-    </div>
-
-    <!-- Mon 13 Apr -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Mon</div>
-        <div class="day-date">13 Apr</div>
-        <div class="day-note">Free from 11:30</div>
-      </div>
-      <div class="day-content">
-        <div class="break-stripe">🎓 Lectures until 11:00 + 30 min travel</div>
-        <div class="session-row">
-          <div class="session-time">11:30–12:30</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Full final review of all 3 submission items: ① video link accessible and under 15 min ② Ducky Script .docx in plain text with comments and references ③ PowerPoint saved and ready.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tue 14 Apr — Rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Tue</div><div class="day-date">14 Apr</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest day</div></div>
-    </div>
-
-    <!-- Wed 15 Apr -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Wed</div>
-        <div class="day-date">15 Apr</div>
-        <div class="day-note">Padel 16:00–17:00</div>
-      </div>
-      <div class="day-content">
-        <div class="session-row">
-          <div class="session-time">Morning · 60 min</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Submit Rubber Ducky to Blackboard early — all 3 items. 8 days before deadline. Confirm receipt. Done!</div>
-            <div class="session-note">Submitting early removes all deadline stress and means the 23 Apr deadline is just a safety net</div>
-          </div>
-        </div>
-        <div class="break-stripe">🏓 16:00–17:00 Padel — celebrate!</div>
-      </div>
-    </div>
-
-    <!-- Thu–Sun rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Thu–Sun</div><div class="day-date">16–19 Apr</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest — two assignments submitted, one to go and it's not due for weeks</div></div>
-    </div>
-  </div>
-
-  <!-- ══════════════════ WEEK 8 ══════════════════ -->
-  <div class="week-block">
-    <div class="week-header">
-      <span class="week-num">W8</span>
-      <span class="week-title">Rubber Ducky Official Deadline + DS Task 4 Polish</span>
-      <span class="week-dates">20–26 Apr</span>
-    </div>
-
-    <!-- Mon–Wed -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Mon–Wed</div><div class="day-date">20–22 Apr</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest — Rubber Ducky already submitted, nothing to do</div></div>
-    </div>
-
-    <!-- Thu 23 Apr — DUCKY DEADLINE -->
-    <div class="day-row deadline-ducky">
-      <div class="day-label">
-        <div class="day-name">Thu</div>
-        <div class="day-date">23 Apr</div>
-        <div class="day-note" style="color:var(--c-ducky)">⚠️ DEADLINE</div>
-      </div>
-      <div class="day-content">
-        <div class="deadline-banner d">🚨 Rubber Ducky official deadline — 14:00. Already submitted — just confirm it's there.</div>
-        <div class="session-row">
-          <div class="session-time">Morning · 15 min</div>
-          <div class="session-body">
-            <span class="tag d">Rubber Ducky</span>
-            <div class="session-desc">Log into Blackboard, confirm your submission from last week is showing correctly. That's it — enjoy the rest of the day.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Fri 24 Apr -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Fri</div>
-        <div class="day-date">24 Apr</div>
-      </div>
-      <div class="day-content">
-        <div class="session-row">
-          <div class="session-time">Session 1 · 90 min</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Return to the DS Task 4 dashboard with fresh eyes. Run it, test all charts, check everything still works. Note any improvements to make.</div>
-          </div>
-        </div>
-        <div class="break-stripe">☕ 20-min break</div>
-        <div class="session-row">
-          <div class="session-time">Session 2 · 90 min</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Implement any improvements noted. Further polish the design — colours, spacing, labels. Make it look genuinely professional. 4 marks are for design.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sat–Sun rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Sat–Sun</div><div class="day-date">25–26 Apr</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Rest weekend</div></div>
-    </div>
-  </div>
-
-  <!-- ══════════════════ WEEK 9 ══════════════════ -->
-  <div class="week-block">
-    <div class="week-header">
-      <span class="week-num">W9</span>
-      <span class="week-title">DS Task 4 — Final Polish &amp; Pre-submit</span>
-      <span class="week-dates">27 Apr – 3 May</span>
-    </div>
-
-    <!-- Mon 27 Apr -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Mon</div>
-        <div class="day-date">27 Apr</div>
-        <div class="day-note">Free from 11:30</div>
-      </div>
-      <div class="day-content">
-        <div class="break-stripe">🎓 Lectures until 11:00 + 30 min travel</div>
-        <div class="session-row">
-          <div class="session-time">11:30–13:00</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Final marking criteria check: ✓ 3 metrics × 4 categories in doc ✓ 6 charts ✓ 2+ input files ✓ 1 geo-spatial ✓ 1 interactive ✓ Effective layout and design. Fix anything missing.</div>
-          </div>
-        </div>
-        <div class="break-stripe">☕ 13:00–13:30 lunch</div>
-        <div class="session-row">
-          <div class="session-time">13:30–15:00</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Package everything for submission — code, data files, document. Run through the dashboard one final time. Prepare submission files.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tue 28 Apr -->
-    <div class="day-row">
-      <div class="day-label">
-        <div class="day-name">Tue</div>
-        <div class="day-date">28 Apr</div>
-        <div class="day-note">Free until 14:00</div>
-      </div>
-      <div class="day-content">
-        <div class="session-row">
-          <div class="session-time">09:00–10:00</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Submit DS Task 4 portfolio to Blackboard — a full week early. Confirm receipt. All three assignments done! 🎉</div>
-          </div>
-        </div>
-        <div class="break-stripe">🎉 All work submitted — enjoy the rest of the day</div>
-      </div>
-    </div>
-
-    <!-- Wed–Sun rest -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Wed–Sun</div><div class="day-date">29 Apr – 3 May</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 All done — full rest week, everything submitted ahead of schedule</div></div>
-    </div>
-  </div>
-
-  <!-- ══════════════════ WEEK 10 ══════════════════ -->
-  <div class="week-block">
-    <div class="week-header">
-      <span class="week-num">W10</span>
-      <span class="week-title">DS Task 4 Official Deadline — Already Submitted</span>
-      <span class="week-dates">4–7 May</span>
-    </div>
-
-    <!-- Mon–Wed -->
-    <div class="day-row rest">
-      <div class="day-label"><div class="day-name">Mon–Wed</div><div class="day-date">4–6 May</div></div>
-      <div class="day-content"><div class="rest-banner">🛌 Everything submitted — pure rest</div></div>
-    </div>
-
-    <!-- Thu 7 May — DS DEADLINE -->
-    <div class="day-row deadline-ds">
-      <div class="day-label">
-        <div class="day-name">Thu</div>
-        <div class="day-date">7 May</div>
-        <div class="day-note" style="color:var(--c-ds)">⚠️ DEADLINE</div>
-      </div>
-      <div class="day-content">
-        <div class="deadline-banner s">🏁 DS Task 4 official deadline — 14:00. Already submitted last week — just confirm it's showing on Blackboard.</div>
-        <div class="session-row">
-          <div class="session-time">Morning · 5 min</div>
-          <div class="session-body">
-            <span class="tag s">DS Task 4</span>
-            <div class="session-desc">Log in, confirm submission is showing. Close the laptop. You're done with everything. 🎉</div>
-          </div>
-        </div>
+        <div class="deadline-banner s">🏁 DS Task 4 official deadline — 14:00. Submitted in Week 3. Confirm on Blackboard — you're done! 🎉</div>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════ STEP BY STEP GUIDES ══════════════════ -->
+  <!-- STEP BY STEP GUIDES -->
   <div class="steps-section">
     <div class="steps-header">Step-by-Step Guides</div>
-
-    <!-- Forensics -->
-    <div class="steps-card">
-      <div class="steps-card-header" onclick="tog(this)">
-        <div class="steps-card-num" style="color:var(--c-forensics)">01</div>
-        <div class="steps-card-title" style="color:var(--c-forensics)">Security &amp; Forensic Tools — Case Investigation</div>
-        <div class="steps-card-meta">
-          <span class="meta-pill">50% of module</span>
-          <span class="meta-pill">Due: 2 Apr</span>
-          <span class="meta-pill">~15–20 hrs</span>
-        </div>
-        <div class="steps-toggle">▶</div>
-      </div>
-      <div class="steps-body">
-        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:1rem;">Submit: ① Provenance Report (40% of marks) &nbsp; ② Contemporaneous Notes (60% of marks)</div>
-        <div class="step-item"><div class="step-n f">1</div><div><div class="step-action">Download everything from Blackboard</div><div class="step-detail">Forensic image (.E01), case scenario document, and the Contemporaneous Notes template from the assessment section. Use the template — it's mandatory.</div></div></div>
-        <div class="step-item"><div class="step-n f">2</div><div><div class="step-action">Open the template before touching the evidence</div><div class="step-detail">Start filling in your notes from the very first action. Document the acquisition. Record both the acquisition hash and verification hash immediately — failing this is a common mark-loser.</div></div></div>
-        <div class="step-item"><div class="step-n f">3</div><div><div class="step-action">Systematic analysis — apply each lab topic to the image</div><div class="step-detail">File system → Browser history → Documents → Registry → Encrypted volumes/passwords → Steganography. Work through each area as you learn it in labs.</div></div></div>
-        <div class="step-item"><div class="step-n f">4</div><div><div class="step-action">Bookmark evidential artefacts in EnCase</div><div class="step-detail">Only bookmark items relevant to the case. Each must have all 9 required fields: Name, Is Deleted, File Created, Last Written, Last Accessed, Logical Size, Physical Sector, Full Path, MD5 Hash.</div></div></div>
-        <div class="step-item"><div class="step-n f">5</div><div><div class="step-action">Generate Provenance Report using EnCase's report template</div><div class="step-detail">Auto-generated from your bookmarks — do NOT manually type provenance blocks. Autopsy reports also accepted.</div></div></div>
-        <div class="step-item"><div class="step-n f">6</div><div><div class="step-action">Write up Contemporaneous Notes thoroughly</div><div class="step-detail">Every action documented. Every non-action justified. Independent examiner must be able to repeat your exact examination. This is 60% of your marks.</div></div></div>
-        <div class="step-item"><div class="step-n f">7</div><div><div class="step-action">Submit both documents (Word or PDF) before 2 Apr 14:00</div><div class="step-detail">Keep backups in at least 2 places — the brief explicitly warns you about this. 48-hour late window available if needed.</div></div></div>
-        <div class="tip">💡 You can score well without finding every piece of evidence. The contemporaneous notes (60% of marks) reward thorough process documentation — even documenting a negative result ("I searched X and found nothing relevant") shows good practice and earns credit.</div>
-      </div>
-    </div>
 
     <!-- Rubber Ducky -->
     <div class="steps-card">
       <div class="steps-card-header" onclick="tog(this)">
-        <div class="steps-card-num" style="color:var(--c-ducky)">02</div>
+        <div class="steps-card-num" style="color:var(--c-ducky)">01</div>
         <div class="steps-card-title" style="color:var(--c-ducky)">Rubber Ducky — USB Attack Video</div>
         <div class="steps-card-meta">
           <span class="meta-pill">100% of module</span>
           <span class="meta-pill">Due: 23 Apr</span>
-          <span class="meta-pill">~12–15 hrs</span>
+          <span class="meta-pill">Target submit: 11 Mar</span>
         </div>
         <div class="steps-toggle">▶</div>
       </div>
       <div class="steps-body">
-        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:1rem;">Submit: ① Video link (max 15 min) &nbsp; ② Ducky Script .docx &nbsp; ③ PowerPoint slides</div>
-        <div class="step-item"><div class="step-n d">1</div><div><div class="step-action">Pick up Raspberry Pi Pico from a lab session</div><div class="step-detail">Must be in person. Contact module leader if you can't attend.</div></div></div>
-        <div class="step-item"><div class="step-n d">2</div><div><div class="step-action">Read the lab worksheet (Learning Unit 16, Blackboard)</div><div class="step-detail">Full setup and execution instructions are in there. Read before touching the hardware.</div></div></div>
-        <div class="step-item"><div class="step-n d">3</div><div><div class="step-action">Design a realistic attack scenario</div><div class="step-detail">Credential harvesting, persistence, data exfiltration, privilege escalation. Avoid pranks. Plan a full attack chain. Think: what TTPs does this cover?</div></div></div>
-        <div class="step-item"><div class="step-n d">4</div><div><div class="step-action">Test simple scripts first, then build up</div><div class="step-detail">Confirm the Pico works with a basic script before building the full attack. Always test in a VM.</div></div></div>
-        <div class="step-item"><div class="step-n d">5</div><div><div class="step-action">Write and test the full Ducky Script + supporting scripts</div><div class="step-detail">Comment every section. Test end-to-end. Do NOT use automated tools to generate it — prohibited and specifically assessed for originality.</div></div></div>
-        <div class="step-item"><div class="step-n d">6</div><div><div class="step-action">Map attack to MITRE ATT&CK (15% of marks)</div><div class="step-detail">Specific TTP IDs for each stage. Also map your mitigations. Be precise — vague mappings lose marks.</div></div></div>
-        <div class="step-item"><div class="step-n d">7</div><div><div class="step-action">Build PowerPoint slides</div><div class="step-detail">Scenario + target, attack design, technical setup, MITRE mapping diagram, stage-specific mitigations, CIA triad impact. Use diagrams — presentation is 10% of marks.</div></div></div>
-        <div class="step-item"><div class="step-n d">8</div><div><div class="step-action">Practice and time your narration</div><div class="step-detail">Max 15 minutes — going over means it won't be marked beyond that. Structure: intro (1 min) → attack design (3 min) → live demo (5 min) → MITRE (3 min) → mitigations (3 min).</div></div></div>
-        <div class="step-item"><div class="step-n d">9</div><div><div class="step-action">Record the final video and upload</div><div class="step-detail">Panopto or OBS. Show your face. Screen capture the live attack. Last edit must be before the submission deadline.</div></div></div>
-        <div class="step-item"><div class="step-n d">10</div><div><div class="step-action">Submit all 3 items before 23 Apr 14:00</div><div class="step-detail">Test video link from another device first. ① Video link ② Ducky Script .docx ③ PowerPoint. Confirm Blackboard receipt.</div></div></div>
-        <div class="tip">💡 The mitigations section (15% of marks) is commonly done badly. Generic advice like "update your software" won't score well. Each mitigation must directly address a specific stage in YOUR attack chain and be mapped to MITRE where possible.</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:1rem">Submit: ① Video link (max 15 min, face on camera) &nbsp;②&nbsp;Ducky Script .docx &nbsp;③&nbsp;PowerPoint slides</div>
+        <div class="step-item"><div class="step-n d">1</div><div><div class="step-action">Get Raspberry Pi Pico from a lab session</div><div class="step-detail">Must be in person. Contact module leader if you can't attend a lab session.</div></div></div>
+        <div class="step-item"><div class="step-n d">2</div><div><div class="step-action">Read lab worksheet — Learning Unit 16 on Blackboard</div><div class="step-detail">Full hardware setup and execution instructions are in there. Read before touching the Pico.</div></div></div>
+        <div class="step-item"><div class="step-n d">3</div><div><div class="step-action">Test a basic Ducky Script first</div><div class="step-detail">Open Notepad, type a line of text. Confirm the Pico executes it in a VM before building the real attack.</div></div></div>
+        <div class="step-item"><div class="step-n d">4</div><div><div class="step-action">Design and write the full attack script</div><div class="step-detail">Comment every section. No automated generation tools. Test in VM after each major section.</div></div></div>
+        <div class="step-item"><div class="step-n d">5</div><div><div class="step-action">Map every stage to specific MITRE ATT&amp;CK TTP IDs — 15% of marks</div><div class="step-detail">Use exact TTP numbers (e.g. T1059.001). Vague mappings score poorly.</div></div></div>
+        <div class="step-item"><div class="step-n d">6</div><div><div class="step-action">Write stage-specific mitigations — 15% of marks</div><div class="step-detail">Each mitigation must address a specific stage in YOUR attack. Not generic advice.</div></div></div>
+        <div class="step-item"><div class="step-n d">7</div><div><div class="step-action">Build PowerPoint with diagrams — 10% of marks</div><div class="step-detail">Scenario, attack chain diagram, MITRE mapping diagram, mitigations, CIA triad impact.</div></div></div>
+        <div class="step-item"><div class="step-n d">8</div><div><div class="step-action">Write and time narration script — max 15 min</div><div class="step-detail">Intro (1 min) → design (3 min) → live demo (5 min) → MITRE (3 min) → mitigations (3 min). Time it before recording.</div></div></div>
+        <div class="step-item"><div class="step-n d">9</div><div><div class="step-action">Record rough draft then final version</div><div class="step-detail">Show your face. Screen capture the live attack in a VM. Test share link from another device before submitting.</div></div></div>
+        <div class="step-item"><div class="step-n d">10</div><div><div class="step-action">Submit all 3 items to Blackboard — target 11 Mar</div><div class="step-detail">① Video link ② Ducky Script .docx ③ PowerPoint. Confirm receipt.</div></div></div>
+        <div class="tip">💡 The mitigations section is worth 15% and is the most commonly done badly. "Keep software updated" scores zero. Each mitigation must specifically neutralise a stage in your own attack chain — and reference MITRE where possible.</div>
       </div>
     </div>
 
     <!-- DS Task 4 -->
     <div class="steps-card">
       <div class="steps-card-header" onclick="tog(this)">
-        <div class="steps-card-num" style="color:var(--c-ds)">03</div>
+        <div class="steps-card-num" style="color:var(--c-ds)">02</div>
         <div class="steps-card-title" style="color:var(--c-ds)">Data Science Task 4 — Security Dashboard</div>
         <div class="steps-card-meta">
           <span class="meta-pill">20% of module</span>
           <span class="meta-pill">Due: 7 May</span>
-          <span class="meta-pill">~8–10 hrs</span>
+          <span class="meta-pill">Target submit: 17 Mar</span>
         </div>
         <div class="steps-toggle">▶</div>
       </div>
       <div class="steps-body">
-        <div style="font-size:0.72rem;color:var(--muted);margin-bottom:1rem;">Submit: ① Data Specification Document &nbsp; ② Python dashboard prototype</div>
-        <div class="step-item"><div class="step-n s">1</div><div><div class="step-action">Read the full task spec and understand the marking criteria</div><div class="step-detail">4 monitoring areas. 20 marks total. Know what earns what before starting.</div></div></div>
-        <div class="step-item"><div class="step-n s">2</div><div><div class="step-action">Write the Data Specification Document (4 marks)</div><div class="step-detail">For each of the 4 categories (Network, Endpoints, Backups, Staff Readiness), identify 3+ metrics. Each row needs: subcategory, metric/format, frequency, collection mode, mechanism, recorded at, storage.</div></div></div>
-        <div class="step-item"><div class="step-n s">3</div><div><div class="step-action">Create 2+ dummy CSV files</div><div class="step-detail">e.g. network_traffic.csv and endpoint_data.csv with 5–10 rows of realistic-looking dummy values. No real data needed.</div></div></div>
-        <div class="step-item"><div class="step-n s">4</div><div><div class="step-action">Plan your 6 charts on paper first</div><div class="step-detail">Decide layout before coding. You need ≥1 geo-spatial (map) and ≥1 interactive. Sketch placement — saves time when building.</div></div></div>
-        <div class="step-item"><div class="step-n s">5</div><div><div class="step-action">Build the dashboard chart by chart</div><div class="step-detail">Use Streamlit + Plotly. Build and test each chart individually before combining. Don't try to do everything at once.</div></div></div>
-        <div class="step-item"><div class="step-n s">6</div><div><div class="step-action">Add geo-spatial visualisation (2 marks)</div><div class="step-detail">Use Plotly's px.scatter_geo or px.choropleth. Map something meaningful like network traffic source countries.</div></div></div>
-        <div class="step-item"><div class="step-n s">7</div><div><div class="step-action">Add interactive visualisation (2 marks)</div><div class="step-detail">Streamlit: st.selectbox or st.slider to filter chart data. Dash: @app.callback with dropdown input.</div></div></div>
-        <div class="step-item"><div class="step-n s">8</div><div><div class="step-action">Polish the design (4 marks)</div><div class="step-detail">Consistent colour scheme, readable fonts, clear titles on every chart, important info placed prominently. Worth as much as the entire data spec document — don't skip it.</div></div></div>
-        <div class="step-item"><div class="step-n s">9</div><div><div class="step-action">Final marking criteria check before submitting</div><div class="step-detail">✓ 3 metrics × 4 categories ✓ 6 charts ✓ 2+ input files ✓ 1 geo-spatial ✓ 1 interactive ✓ Effective design and layout</div></div></div>
-        <div class="tip">💡 Streamlit is much faster to set up than Dash if you're new to dashboarding — working prototype in under an hour. Plotly Express handles both geo-spatial and interactive charts with very minimal code.</div>
+        <div style="font-size:.72rem;color:var(--muted);margin-bottom:1rem">Submit: ① Data Specification Document &nbsp;②&nbsp;Python dashboard prototype (Streamlit + Plotly)</div>
+        <div class="step-item"><div class="step-n s">1</div><div><div class="step-action">Read the spec and understand all 20 marks before starting</div><div class="step-detail">4 monitoring areas. Know what each mark is for before writing a line of code.</div></div></div>
+        <div class="step-item"><div class="step-n s">2</div><div><div class="step-action">Write Data Specification Document — 4 marks</div><div class="step-detail">3+ metrics per category × 4 categories. Each row: subcategory, metric/format, frequency, collection mode, mechanism, recorded at, storage.</div></div></div>
+        <div class="step-item"><div class="step-n s">3</div><div><div class="step-action">Create 2+ dummy CSV input files</div><div class="step-detail">network_traffic.csv and endpoint_data.csv with realistic dummy values — 5–10 rows each.</div></div></div>
+        <div class="step-item"><div class="step-n s">4</div><div><div class="step-action">Sketch your 6 charts on paper before coding</div><div class="step-detail">Plan the layout, which data feeds which chart, and which ones will be geo-spatial and interactive.</div></div></div>
+        <div class="step-item"><div class="step-n s">5</div><div><div class="step-action">Build charts one at a time and test each individually</div><div class="step-detail">Use Streamlit + Plotly. Build and test each chart before adding the next one.</div></div></div>
+        <div class="step-item"><div class="step-n s">6</div><div><div class="step-action">Add geo-spatial chart — 2 dedicated marks</div><div class="step-detail">px.scatter_geo or px.choropleth. Map network traffic source countries on a world map.</div></div></div>
+        <div class="step-item"><div class="step-n s">7</div><div><div class="step-action">Add interactive chart — 2 dedicated marks</div><div class="step-detail">st.selectbox or st.slider to filter or change the data shown in a chart.</div></div></div>
+        <div class="step-item"><div class="step-n s">8</div><div><div class="step-action">Polish the design — 4 marks</div><div class="step-detail">Consistent colours, clear titles on every chart, readable fonts, important info prominent. Worth as much as the whole data spec document.</div></div></div>
+        <div class="step-item"><div class="step-n s">9</div><div><div class="step-action">Final check then submit — target 17 Mar</div><div class="step-detail">✓ 3 metrics × 4 categories ✓ 6 charts ✓ 2+ CSV files ✓ 1 geo-spatial ✓ 1 interactive ✓ Effective design</div></div></div>
+        <div class="tip">💡 Streamlit is significantly faster to set up than Dash if you're new to dashboarding. You can go from zero to a running dashboard in under 30 minutes with pip install streamlit plotly.</div>
+      </div>
+    </div>
+
+    <!-- Forensics paused -->
+    <div class="steps-card">
+      <div class="steps-card-header" onclick="tog(this)">
+        <div class="steps-card-num" style="color:var(--c-forensics)">⏸</div>
+        <div class="steps-card-title" style="color:var(--c-forensics)">Forensics Investigation — Paused (awaiting UWE fix)</div>
+        <div class="steps-card-meta">
+          <span class="meta-pill">50% of module</span>
+          <span class="meta-pill">Due: 2 Apr</span>
+          <span class="meta-pill">⚠️ Email module leader by 26 Mar if still broken</span>
+        </div>
+        <div class="steps-toggle">▶</div>
+      </div>
+      <div class="steps-body">
+        <div style="font-size:.72rem;color:var(--c-forensics);margin-bottom:1rem;line-height:1.6">Software access issue — EnCase/Autopsy not accessible. Weeks 3–5 are held as buffer. The moment access is restored, follow these steps. If not fixed by 26 Mar, email your module leader for an extension — do not wait until the deadline.</div>
+        <div class="step-item"><div class="step-n" style="background:rgba(100,116,139,.15);color:var(--c-forensics)">1</div><div><div class="step-action">Chase UWE IT and module leader for software access</div><div class="step-detail">Email both explaining the issue. Keep a copy — this is your evidence if you need an extension.</div></div></div>
+        <div class="step-item"><div class="step-n" style="background:rgba(100,116,139,.15);color:var(--c-forensics)">2</div><div><div class="step-action">Once access restored — read case scenario before opening the image</div><div class="step-detail">Open Contemporaneous Notes template immediately. Document your very first action.</div></div></div>
+        <div class="step-item"><div class="step-n" style="background:rgba(100,116,139,.15);color:var(--c-forensics)">3</div><div><div class="step-action">Systematic investigation — file system, browser history, registry, encryption, steganography</div><div class="step-detail">Document every action and every non-action. Negative results still earn marks when properly documented.</div></div></div>
+        <div class="step-item"><div class="step-n" style="background:rgba(100,116,139,.15);color:var(--c-forensics)">4</div><div><div class="step-action">Generate Provenance Report using EnCase auto-report</div><div class="step-detail">Must be auto-generated from bookmarks — do NOT type it manually. Check all 9 required fields per bookmark block.</div></div></div>
+        <div class="step-item"><div class="step-n" style="background:rgba(100,116,139,.15);color:var(--c-forensics)">5</div><div><div class="step-action">Write thorough Contemporaneous Notes — 60% of forensics marks</div><div class="step-detail">Every action documented. Every non-action justified. An independent examiner must be able to repeat your exact steps.</div></div></div>
+        <div class="tip">💡 Reporting the issue early with email evidence gives you a strong case for an extension. Don't suffer in silence — the sooner you contact your module leader, the better protected you are.</div>
       </div>
     </div>
 
